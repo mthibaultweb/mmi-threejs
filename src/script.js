@@ -1,13 +1,15 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import GUI from "lil-gui";
+import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js";
+import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js";
 
 /**
  * Base
  */
 // Debug
 const gui = new GUI({
-  title: 'Galaxy parameters',
+  title: "Galaxy parameters",
   width: 300,
 });
 
@@ -16,6 +18,52 @@ const canvas = document.querySelector("canvas.webgl");
 
 // Scene
 const scene = new THREE.Scene();
+
+/**
+ * Textures
+ */
+const textureLoader = new THREE.TextureLoader();
+const matcapTexture = textureLoader.load("/textures/matcaps/3.png");
+matcapTexture.colorSpace = THREE.SRGBColorSpace;
+
+/**
+ * Fonts
+ */
+const fontLoader = new FontLoader();
+
+fontLoader.load("/fonts/helvetiker_regular.typeface.json", (font) => {
+  const textGeometry1 = new TextGeometry("Galaxy", {
+    font: font,
+    size: 0.5,
+    height: 0.2,
+    curveSegments: 5,
+    bevelEnabled: true,
+    bevelThickness: 0.03,
+    bevelSize: 0.02,
+    bevelOffset: 0,
+    bevelSegments: 4,
+  });
+  const textGeometry2 = new TextGeometry("Simulator", {
+    font: font,
+    size: 0.5,
+    height: 0.2,
+    curveSegments: 5,
+    bevelEnabled: true,
+    bevelThickness: 0.03,
+    bevelSize: 0.02,
+    bevelOffset: 0,
+    bevelSegments: 4,
+  });
+  textGeometry1.center();
+  textGeometry2.center();
+
+  const textMaterial = new THREE.MeshMatcapMaterial({ matcap: matcapTexture });
+  const text1 = new THREE.Mesh(textGeometry1, textMaterial);
+  text1.position.y = 2.75;
+  const text2 = new THREE.Mesh(textGeometry2, textMaterial);
+  text2.position.y = 2;
+  scene.add(text1, text2);
+});
 
 /**
  * Galaxy
@@ -111,58 +159,64 @@ const generateGalaxy = () => {
 
 generateGalaxy();
 
-const galaxyTweaks = gui.addFolder('Galaxy')
+const galaxyTweaks = gui.addFolder("Galaxy");
 galaxyTweaks
   .add(parameters, "count")
   .min(100)
   .max(1000000)
   .step(100)
   .onFinishChange(generateGalaxy)
-  .name('Particles count');
+  .name("Particles count");
 galaxyTweaks
   .add(parameters, "size")
   .min(0.01)
   .max(0.1)
   .step(0.001)
   .onFinishChange(generateGalaxy)
-  .name('Particles size');
+  .name("Particles size");
 galaxyTweaks
   .add(parameters, "radius")
   .min(0.01)
   .max(20)
   .step(0.01)
   .onFinishChange(generateGalaxy)
-  .name('Galaxy radius');
+  .name("Galaxy radius");
 galaxyTweaks
   .add(parameters, "branches")
   .min(2)
   .max(20)
   .step(1)
   .onFinishChange(generateGalaxy)
-  .name('Galaxy branches');
+  .name("Galaxy branches");
 galaxyTweaks
   .add(parameters, "spin")
   .min(-5)
   .max(5)
   .step(0.01)
   .onFinishChange(generateGalaxy)
-  .name('Spin');
+  .name("Spin");
 galaxyTweaks
   .add(parameters, "randomness")
   .min(0)
   .max(2)
   .step(0.001)
   .onFinishChange(generateGalaxy)
-  .name('Randomness');
+  .name("Randomness");
 galaxyTweaks
   .add(parameters, "randomnessPower")
   .min(1)
   .max(10)
   .step(0.001)
   .onFinishChange(generateGalaxy)
-  .name('Randomness power');
-galaxyTweaks.addColor(parameters, "insideColor").onFinishChange(generateGalaxy).name('Inside color');
-galaxyTweaks.addColor(parameters, "outsideColor").onFinishChange(generateGalaxy).name('Outside color');
+  .name("Randomness power");
+galaxyTweaks
+  .addColor(parameters, "insideColor")
+  .onFinishChange(generateGalaxy)
+  .name("Inside color");
+galaxyTweaks
+  .addColor(parameters, "outsideColor")
+  .onFinishChange(generateGalaxy)
+  .name("Outside color");
 
 /**
  * Sizes
@@ -196,9 +250,9 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   100
 );
-camera.position.x = 3;
-camera.position.y = 3;
-camera.position.z = 3;
+camera.position.x = -3;
+camera.position.y = 2;
+camera.position.z = 4;
 scene.add(camera);
 
 // Controls
